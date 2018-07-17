@@ -8,6 +8,7 @@ target 'CoinCounter' do
   # Pods for CoinCounter
   pod 'SnapKit', '~> 4.0.0'
   pod 'TensorFlowLite', '~> 0.1.7'
+  pod 'OpenCV', '~> 3.4.1'
   
   target 'CoinCounterTests' do
     inherit! :search_paths

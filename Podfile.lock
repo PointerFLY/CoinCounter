@@ -1,15 +1,18 @@
 PODS:
+  - OpenCV (3.4.1)
   - SnapKit (4.0.0)
   - TensorFlowLite (0.1.7)
 
 DEPENDENCIES:
+  - OpenCV (~> 3.4.1)
   - SnapKit (~> 4.0.0)
   - TensorFlowLite (~> 0.1.7)
 
 SPEC CHECKSUMS:
+  OpenCV: 533d4b33a02bd225c49838901db2a1ddb6efe6b1
   SnapKit: a42d492c16e80209130a3379f73596c3454b7694
   TensorFlowLite: 7cd43376c604938a12110b8335a5a407afe41688
 
-PODFILE CHECKSUM: ff698e75ab3d363a7463d8142eb565aff24af48b
+PODFILE CHECKSUM: f723265a50bac3b123b2bd5b48b0fc06aefc51a9
 
 COCOAPODS: 1.4.0

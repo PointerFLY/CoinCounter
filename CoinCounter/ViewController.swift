@@ -25,6 +25,7 @@ class ViewController: UIViewController, AVCaptureVideoDataOutputSampleBufferDele
     private var _videoDataOuput: AVCaptureVideoDataOutput!
     private var _previewLayer: AVCaptureVideoPreviewLayer!
     private var _videoDataOutputQueue: DispatchQueue!
+    private let _interpreter = Interpreter()
     
     private func setupAVCapture() {
         _session = AVCaptureSession()
@@ -56,8 +57,8 @@ class ViewController: UIViewController, AVCaptureVideoDataOutputSampleBufferDele
         _previewLayer.videoGravity = .resizeAspect
         let rootLayer = _previewView.layer
         rootLayer.masksToBounds = true
-        _previewLayer.frame = rootLayer.bounds
         rootLayer.addSublayer(_previewLayer)
+        
         _session.startRunning()
     }
     
@@ -92,9 +93,10 @@ class ViewController: UIViewController, AVCaptureVideoDataOutputSampleBufferDele
         }
     }
     
-    func captureOutput(_ output: AVCaptureOutput, didDrop sampleBuffer: CMSampleBuffer, from connection: AVCaptureConnection) {
-//        let buffer = CMSampleBufferGetImageBuffer(sampleBuffer)!
-//        runModelOnFrame(pixelBuffer: buffer)
+    func captureOutput(_ output: AVCaptureOutput, didOutput sampleBuffer: CMSampleBuffer, from connection: AVCaptureConnection) {
+        let buffer = CMSampleBufferGetImageBuffer(sampleBuffer)!
+        let coinInfo =  _interpreter.run(onFrame: buffer) as! [String: Int]
+        print(coinInfo["20 Euro"]!)
     }
     
     // MARK: - UI
