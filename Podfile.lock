@@ -1,0 +1,15 @@
+PODS:
+  - SnapKit (4.0.0)
+  - TensorFlowLite (0.1.7)
+
+DEPENDENCIES:
+  - SnapKit (~> 4.0.0)
+  - TensorFlowLite (~> 0.1.7)
+
+SPEC CHECKSUMS:
+  SnapKit: a42d492c16e80209130a3379f73596c3454b7694
+  TensorFlowLite: 7cd43376c604938a12110b8335a5a407afe41688
+
+PODFILE CHECKSUM: ff698e75ab3d363a7463d8142eb565aff24af48b
+
+COCOAPODS: 1.4.0
