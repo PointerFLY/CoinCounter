@@ -6,21 +6,118 @@
 //  Copyright © 2018 PointerFLY. All rights reserved.
 //
 
+import AVFoundation
 import UIKit
 import SnapKit
 
-class ViewController: UIViewController {
+class ViewController: UIViewController, AVCaptureVideoDataOutputSampleBufferDelegate {
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        setupUI()
+        setupEvents()
+        setupAVCapture();
+    }
+    
+    // MARK: - AVCapture
+    
+    private var _session: AVCaptureSession!
+    private var _videoDataOuput: AVCaptureVideoDataOutput!
+    private var _previewLayer: AVCaptureVideoPreviewLayer!
+    private var _videoDataOutputQueue: DispatchQueue!
+    
+    private func setupAVCapture() {
+        _session = AVCaptureSession()
+        if UIDevice.current.userInterfaceIdiom == .phone {
+            _session.sessionPreset = .vga640x480
+        } else {
+            _session.sessionPreset = .photo
+        }
+        
+        let device = AVCaptureDevice.default(for: .video)!
+        let deviceInput = try! AVCaptureDeviceInput(device: device)
+        
+        if _session.canAddInput(deviceInput) {
+            _session.addInput(deviceInput)
+        }
+    
+        _videoDataOuput = AVCaptureVideoDataOutput()
+        _videoDataOuput.videoSettings = [kCVPixelBufferPixelFormatTypeKey as String: kCMPixelFormat_32BGRA]
+        _videoDataOutputQueue = DispatchQueue(label: "hello")
+        _videoDataOuput.alwaysDiscardsLateVideoFrames = true
+        _videoDataOuput.setSampleBufferDelegate(self, queue: _videoDataOutputQueue);
+        if _session.canAddOutput(_videoDataOuput) {
+            _session.addOutput(_videoDataOuput)
+        }
+        _videoDataOuput.connection(with: .video)?.isEnabled = true
+        
+        _previewLayer = AVCaptureVideoPreviewLayer(session: _session);
+        _previewLayer.backgroundColor = UIColor.black.cgColor
+        _previewLayer.videoGravity = .resizeAspect
+        let rootLayer = _previewView.layer
+        rootLayer.masksToBounds = true
+        _previewLayer.frame = rootLayer.bounds
+        rootLayer.addSublayer(_previewLayer)
+        _session.startRunning()
+    }
+    
+    // MARK: - Events
+    
+    private func setupEvents() {
+        _freezeButton.addTarget(self, action: #selector(freezeButtonClicked(_:)), for: .touchUpInside)
+    }
+    
+    @objc
+    private func freezeButtonClicked(_ sender: UIButton) {
+        if _session.isRunning {
+            _session.stopRunning()
+            sender.setTitle("Continue", for: .normal)
+            let flashView = UIView(frame: _previewView.frame)
+            flashView.backgroundColor = UIColor.white
+            flashView.alpha = 0.0
+            self.view.window?.addSubview(flashView);
+            
+            UIView.animate(withDuration: 0.2, animations: {
+                flashView.alpha = 1.0
+            }) { _ in
+                UIView.animate(withDuration: 0.2, animations: {
+                    flashView.alpha = 0.0
+                }, completion: { _ in
+                    flashView.removeFromSuperview()
+                })
+            }
+        } else {
+            self._session.startRunning()
+            sender.setTitle("Freeze Frame", for: .normal)
+        }
+    }
+    
+    func captureOutput(_ output: AVCaptureOutput, didDrop sampleBuffer: CMSampleBuffer, from connection: AVCaptureConnection) {
+//        let buffer = CMSampleBufferGetImageBuffer(sampleBuffer)!
+//        runModelOnFrame(pixelBuffer: buffer)
+    }
+    
+    // MARK: - UI
+    
+    override var prefersStatusBarHidden: Bool {
+        return true
+    }
+    
+    override func viewDidLayoutSubviews() {
+        super.viewDidLayoutSubviews();
+        let rootLayer = _previewView.layer
+        _previewLayer.frame = rootLayer.bounds
+    }
+    
+    private func setupUI() {
         self.view.backgroundColor = UIColor.black
         self.view.addSubview(_previewView)
         self.view.addSubview(_freezeButton)
         _previewView.snp.makeConstraints { make in
-            make.top.equalTo(self.view)
+            make.top.equalTo(self.view).offset(20)
             make.left.equalTo(self.view)
             make.right.equalTo(self.view)
-            make.bottom.equalTo(self.view).offset(-80)
+            make.bottom.equalTo(self.view).offset(-90)
         }
         _freezeButton.snp.makeConstraints { make in
             make.top.equalTo(_previewView.snp.bottom)
@@ -28,14 +125,8 @@ class ViewController: UIViewController {
             make.right.equalTo(self.view)
             make.height.equalTo(44)
         }
-        _freezeButton.addTarget(self, action: #selector(freezeButtonClicked(_:)), for: .touchUpInside)
     }
     
-    @objc
-    private func freezeButtonClicked(_ sender: UIButton) {
-        print("freeze")
-    }
-
     private let _previewView: UIView = {
         let view = UIView()
         view.backgroundColor = UIColor.black

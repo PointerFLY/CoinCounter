@@ -39,6 +39,7 @@
 		350A89BC20FE4BFA005C9B24 /* CoinCounterTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = CoinCounterTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		350A89C020FE4BFA005C9B24 /* CoinCounterTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CoinCounterTests.swift; sourceTree = "<group>"; };
 		350A89C220FE4BFA005C9B24 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		350A89CB20FE774B005C9B24 /* CoinCounter-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "CoinCounter-Bridging-Header.h"; sourceTree = "<group>"; };
 		97983C3089F839B6C1C8308B /* Pods_CoinCounterTests.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_CoinCounterTests.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		B063F46CD5B35B576E2197EC /* Pods-CoinCounter.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-CoinCounter.release.xcconfig"; path = "Pods/Target Support Files/Pods-CoinCounter/Pods-CoinCounter.release.xcconfig"; sourceTree = "<group>"; };
 		E524974031AE4394427BD2A7 /* Pods-CoinCounter.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-CoinCounter.debug.xcconfig"; path = "Pods/Target Support Files/Pods-CoinCounter/Pods-CoinCounter.debug.xcconfig"; sourceTree = "<group>"; };
@@ -96,11 +97,9 @@
 		350A89AA20FE4BF8005C9B24 /* CoinCounter */ = {
 			isa = PBXGroup;
 			children = (
+				350A89CF20FE777B005C9B24 /* Support Files */,
 				350A89AB20FE4BF8005C9B24 /* AppDelegate.swift */,
 				350A89AD20FE4BF8005C9B24 /* ViewController.swift */,
-				350A89B220FE4BF9005C9B24 /* Assets.xcassets */,
-				350A89B420FE4BF9005C9B24 /* LaunchScreen.storyboard */,
-				350A89B720FE4BF9005C9B24 /* Info.plist */,
 			);
 			path = CoinCounter;
 			sourceTree = "<group>";
@@ -112,6 +111,17 @@
 				350A89C220FE4BFA005C9B24 /* Info.plist */,
 			);
 			path = CoinCounterTests;
+			sourceTree = "<group>";
+		};
+		350A89CF20FE777B005C9B24 /* Support Files */ = {
+			isa = PBXGroup;
+			children = (
+				350A89CB20FE774B005C9B24 /* CoinCounter-Bridging-Header.h */,
+				350A89B220FE4BF9005C9B24 /* Assets.xcassets */,
+				350A89B420FE4BF9005C9B24 /* LaunchScreen.storyboard */,
+				350A89B720FE4BF9005C9B24 /* Info.plist */,
+			);
+			name = "Support Files";
 			sourceTree = "<group>";
 		};
 		CBD2B3223B7AF4D7100122BB /* Pods */ = {
@@ -181,6 +191,7 @@
 				TargetAttributes = {
 					350A89A720FE4BF8005C9B24 = {
 						CreatedOnToolsVersion = 9.4.1;
+						LastSwiftMigration = 0940;
 					};
 					350A89BB20FE4BFA005C9B24 = {
 						CreatedOnToolsVersion = 9.4.1;
@@ -487,6 +498,7 @@
 			baseConfigurationReference = E524974031AE4394427BD2A7 /* Pods-CoinCounter.debug.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = HJ2DPGH38B;
 				INFOPLIST_FILE = CoinCounter/Info.plist;
@@ -496,6 +508,8 @@
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = com.pointerfly.CoinCounter;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_OBJC_BRIDGING_HEADER = "CoinCounter/CoinCounter-Bridging-Header.h";
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_VERSION = 4.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
@@ -506,6 +520,7 @@
 			baseConfigurationReference = B063F46CD5B35B576E2197EC /* Pods-CoinCounter.release.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = HJ2DPGH38B;
 				INFOPLIST_FILE = CoinCounter/Info.plist;
@@ -515,6 +530,7 @@
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = com.pointerfly.CoinCounter;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_OBJC_BRIDGING_HEADER = "CoinCounter/CoinCounter-Bridging-Header.h";
 				SWIFT_VERSION = 4.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
