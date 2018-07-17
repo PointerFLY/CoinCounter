@@ -44,7 +44,7 @@ class ViewController: UIViewController, AVCaptureVideoDataOutputSampleBufferDele
     
         _videoDataOuput = AVCaptureVideoDataOutput()
         _videoDataOuput.videoSettings = [kCVPixelBufferPixelFormatTypeKey as String: kCMPixelFormat_32BGRA]
-        _videoDataOutputQueue = DispatchQueue(label: "hello")
+        _videoDataOutputQueue = DispatchQueue(label: "com.pointerfly.CoinCounter.videoDataOutputQueue")
         _videoDataOuput.alwaysDiscardsLateVideoFrames = true
         _videoDataOuput.setSampleBufferDelegate(self, queue: _videoDataOutputQueue);
         if _session.canAddOutput(_videoDataOuput) {
@@ -96,7 +96,14 @@ class ViewController: UIViewController, AVCaptureVideoDataOutputSampleBufferDele
     func captureOutput(_ output: AVCaptureOutput, didOutput sampleBuffer: CMSampleBuffer, from connection: AVCaptureConnection) {
         let buffer = CMSampleBufferGetImageBuffer(sampleBuffer)!
         let coinInfo =  _interpreter.run(onFrame: buffer) as! [String: Int]
-        print(coinInfo["20 Euro"]!)
+        
+        var text = "";
+        for (key, value) in coinInfo {
+            text += "[\(value)]\(key)\n"
+        }
+        DispatchQueue.main.async { [weak self] in
+            self?._infoTextView.text = text
+        }
     }
     
     // MARK: - UI
@@ -114,20 +121,38 @@ class ViewController: UIViewController, AVCaptureVideoDataOutputSampleBufferDele
     private func setupUI() {
         self.view.backgroundColor = UIColor.black
         self.view.addSubview(_previewView)
+        self.view.addSubview(_infoTextView)
         self.view.addSubview(_freezeButton)
         _previewView.snp.makeConstraints { make in
-            make.top.equalTo(self.view).offset(20)
+            make.top.equalTo(self.view)
             make.left.equalTo(self.view)
             make.right.equalTo(self.view)
-            make.bottom.equalTo(self.view).offset(-90)
+            make.bottom.equalTo(_infoTextView.snp.top)
+        }
+        _infoTextView.snp.makeConstraints { make in
+            make.left.equalTo(self.view)
+            make.right.equalTo(_freezeButton.snp.left)
+            make.bottom.equalTo(self.view)
+            make.height.equalTo(164)
+            make.width.equalTo(100)
         }
         _freezeButton.snp.makeConstraints { make in
             make.top.equalTo(_previewView.snp.bottom)
-            make.left.equalTo(self.view)
             make.right.equalTo(self.view)
-            make.height.equalTo(44)
+            make.height.equalTo(_infoTextView)
         }
     }
+    
+    private let _infoTextView: UITextView = {
+        let textView = UITextView()
+        textView.backgroundColor = UIColor.white
+        textView.font = UIFont(name: "Menlo-Regular", size: 14)
+        textView.textColor = UIColor.black
+        textView.isScrollEnabled = false
+        textView.isEditable = false
+        textView.isSelectable = false
+        return textView
+    }()
     
     private let _previewView: UIView = {
         let view = UIView()
