@@ -118,7 +118,7 @@ class ViewController: UIViewController, AVCaptureVideoDataOutputSampleBufferDele
             make.right.equalTo(_freezeButton.snp.left)
             make.bottom.equalTo(self.view)
             make.height.equalTo(164)
-            make.width.equalTo(100)
+            make.width.equalTo(140)
         }
         _freezeButton.snp.makeConstraints { make in
             make.top.equalTo(_previewView.snp.bottom)
@@ -129,9 +129,9 @@ class ViewController: UIViewController, AVCaptureVideoDataOutputSampleBufferDele
     
     private let _infoTextView: UITextView = {
         let textView = UITextView()
-        textView.backgroundColor = UIColor.white
+        textView.backgroundColor = UIColor.black
         textView.font = UIFont(name: "Menlo-Regular", size: 14)
-        textView.textColor = UIColor.black
+        textView.textColor = UIColor.white
         textView.isScrollEnabled = false
         textView.isEditable = false
         textView.isSelectable = false

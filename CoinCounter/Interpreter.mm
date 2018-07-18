@@ -52,22 +52,45 @@ using namespace std;
         circle(mRgba, center, radius, Scalar(255, 0, 0, 255), 2);
     }
     
-    NSDictionary* coinInfo = @{@"10 Cent" : [NSNumber numberWithInt:1],
-                               @"20 Cent" : [NSNumber numberWithInt:2],
-                               @"50 Cent" : [NSNumber numberWithInt:1],
-                               @"1 Cent" : [NSNumber numberWithInt:2],
-                               @"2 Euro" : [NSNumber numberWithInt:1],
-                               @"5 Cent" : [NSNumber numberWithInt:2],
-                               @"1 Cent" : [NSNumber numberWithInt:2]};
+    NSDictionary* coinInfo = [self runTFModel:mRgba];
+    UIImage* image = MatToUIImage(mRgba);
+    
     InterpreterResult* result = [[InterpreterResult alloc] init];
-    result.image = MatToUIImage(mRgba);
     result.coinInfo = coinInfo;
+    result.image = image;
     
     return result;
 }
 
-- (void)runTFModel:(Mat)mGray {
+- (NSDictionary*)runTFModel:(Mat)mat {
+    // TODO: General image preprocessing, now assume 640 * 480
     
+    int kImageWidth = 224;
+    int kChannel = 3;
+    
+    cv::Rect rect = cvRect(16, 96, 448, 448);
+    Mat img = mat(rect);
+    resize(img, img, cv::Size(kImageWidth, kImageWidth));
+
+    float* input = _interpreter->typed_input_tensor<float>(0);
+    
+    for (int i = 0; i < kImageWidth; i++) {
+        for (int j = 0; j < kImageWidth; j++) {
+            for (int k = 0; k < kChannel; k++) {
+                input[i * kImageWidth * kChannel + j * kChannel + k] = static_cast<float>(img.at<Vec4b>(i, j)[k]);
+            }
+        }
+    }
+
+    assert(_interpreter->Invoke() == kTfLiteOk);
+    
+    NSMutableDictionary* coinInfo = [[NSMutableDictionary alloc] init];
+    float* output = _interpreter->typed_output_tensor<float>(0);
+    for (int i = 0; i < 5; i++) {
+        [coinInfo setObject:[NSString stringWithFormat:@"%.2f", output[i]] forKey:[NSString stringWithUTF8String:_labels[i].c_str()]];
+    }
+
+    return coinInfo;
 }
 
 - (void)setupTFModel {
