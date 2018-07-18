@@ -6,19 +6,36 @@
 //  Copyright © 2018 PointerFLY. All rights reserved.
 //
 
-#include <opencv2/opencv.hpp>
-#include <opencv2/imgcodecs/ios.h>
-#include <vector>
+#include "opencv2/opencv.hpp"
 #import "Interpreter.h"
+
+#include "opencv2/imgcodecs/ios.h"
+#include <vector>
+#include "tensorflow/contrib/lite/kernels/register.h"
+#include "tensorflow/contrib/lite/model.h"
+#include "tensorflow/contrib/lite/string_util.h"
+#include "tensorflow/contrib/lite/tools/mutable_op_resolver.h"
 
 using namespace cv;
 using namespace std;
 
 @implementation InterpreterResult
-
 @end
 
-@implementation Interpreter
+@implementation Interpreter {
+    std::unique_ptr<tflite::FlatBufferModel> _model;
+    std::unique_ptr<tflite::Interpreter> _interpreter;
+    std::vector<std::string> _labels;
+}
+
+- (instancetype)init
+{
+    self = [super init];
+    if (self) {
+        [self setupTFModel];
+    }
+    return self;
+}
 
 - (InterpreterResult *)runOnFrame:(CVPixelBufferRef)pixelBuffer {
     Mat mRgba = [self readMatFromPixelBuffer:pixelBuffer];
@@ -47,6 +64,32 @@ using namespace std;
     result.coinInfo = coinInfo;
     
     return result;
+}
+
+- (void)runTFModel:(Mat)mGray {
+    
+}
+
+- (void)setupTFModel {
+    // Load Model
+    
+    NSString* modelPath = [[NSBundle mainBundle] pathForResource:@"model" ofType:@"tflite"];
+    _model = tflite::FlatBufferModel::BuildFromFile([modelPath UTF8String]);
+    _model->error_reporter();
+    
+    tflite::ops::builtin::BuiltinOpResolver resolver;
+    tflite::InterpreterBuilder(*_model, resolver)(&_interpreter);
+    assert(_interpreter->AllocateTensors() == kTfLiteOk);
+    
+    // Load labels
+    
+    NSString* labelsPath = [[NSBundle mainBundle] pathForResource:@"labels" ofType:@"txt"];
+    ifstream ifs([labelsPath UTF8String]);
+    std::string line;
+    while (ifs) {
+        std::getline(ifs, line);
+        _labels.push_back(line);
+    }
 }
 
 - (Mat)readMatFromPixelBuffer:(CVPixelBufferRef)pixelBuffer {

@@ -13,6 +13,8 @@
 		350A89B620FE4BF9005C9B24 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 350A89B420FE4BF9005C9B24 /* LaunchScreen.storyboard */; };
 		350A89C120FE4BFA005C9B24 /* CoinCounterTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 350A89C020FE4BFA005C9B24 /* CoinCounterTests.swift */; };
 		3581774920FE81BD0078F809 /* Interpreter.mm in Sources */ = {isa = PBXBuildFile; fileRef = 3581774820FE81BD0078F809 /* Interpreter.mm */; };
+		35CBCE3C20FF9B28000C6944 /* labels.txt in Resources */ = {isa = PBXBuildFile; fileRef = 35CBCE3A20FF9B28000C6944 /* labels.txt */; };
+		35CBCE3D20FF9B28000C6944 /* model.tflite in Resources */ = {isa = PBXBuildFile; fileRef = 35CBCE3B20FF9B28000C6944 /* model.tflite */; };
 		965690E0A46FD3BB7C0C6CC3 /* Pods_CoinCounterTests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 97983C3089F839B6C1C8308B /* Pods_CoinCounterTests.framework */; };
 		B662BA5CD61475D960C12BBD /* Pods_CoinCounter.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 157B18218AC28AF19CF3D1FA /* Pods_CoinCounter.framework */; };
 /* End PBXBuildFile section */
@@ -43,6 +45,8 @@
 		350A89CB20FE774B005C9B24 /* CoinCounter-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "CoinCounter-Bridging-Header.h"; sourceTree = "<group>"; };
 		3581774720FE81BD0078F809 /* Interpreter.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Interpreter.h; sourceTree = "<group>"; };
 		3581774820FE81BD0078F809 /* Interpreter.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = Interpreter.mm; sourceTree = "<group>"; };
+		35CBCE3A20FF9B28000C6944 /* labels.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = labels.txt; sourceTree = "<group>"; };
+		35CBCE3B20FF9B28000C6944 /* model.tflite */ = {isa = PBXFileReference; lastKnownFileType = file; path = model.tflite; sourceTree = "<group>"; };
 		97983C3089F839B6C1C8308B /* Pods_CoinCounterTests.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_CoinCounterTests.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		B063F46CD5B35B576E2197EC /* Pods-CoinCounter.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-CoinCounter.release.xcconfig"; path = "Pods/Target Support Files/Pods-CoinCounter/Pods-CoinCounter.release.xcconfig"; sourceTree = "<group>"; };
 		E524974031AE4394427BD2A7 /* Pods-CoinCounter.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-CoinCounter.debug.xcconfig"; path = "Pods/Target Support Files/Pods-CoinCounter/Pods-CoinCounter.debug.xcconfig"; sourceTree = "<group>"; };
@@ -100,6 +104,7 @@
 		350A89AA20FE4BF8005C9B24 /* CoinCounter */ = {
 			isa = PBXGroup;
 			children = (
+				35CBCE3920FF9B28000C6944 /* Data */,
 				350A89CF20FE777B005C9B24 /* Support Files */,
 				350A89AB20FE4BF8005C9B24 /* AppDelegate.swift */,
 				350A89AD20FE4BF8005C9B24 /* ViewController.swift */,
@@ -127,6 +132,15 @@
 				350A89B720FE4BF9005C9B24 /* Info.plist */,
 			);
 			name = "Support Files";
+			sourceTree = "<group>";
+		};
+		35CBCE3920FF9B28000C6944 /* Data */ = {
+			isa = PBXGroup;
+			children = (
+				35CBCE3A20FF9B28000C6944 /* labels.txt */,
+				35CBCE3B20FF9B28000C6944 /* model.tflite */,
+			);
+			path = Data;
 			sourceTree = "<group>";
 		};
 		CBD2B3223B7AF4D7100122BB /* Pods */ = {
@@ -229,7 +243,9 @@
 			buildActionMask = 2147483647;
 			files = (
 				350A89B620FE4BF9005C9B24 /* LaunchScreen.storyboard in Resources */,
+				35CBCE3C20FF9B28000C6944 /* labels.txt in Resources */,
 				350A89B320FE4BF9005C9B24 /* Assets.xcassets in Resources */,
+				35CBCE3D20FF9B28000C6944 /* model.tflite in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
