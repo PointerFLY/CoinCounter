@@ -9,8 +9,17 @@
 #import <Foundation/Foundation.h>
 #import <AVFoundation/AVFoundation.h>
 
+NS_ASSUME_NONNULL_BEGIN
+
+@interface InterpreterResult : NSObject
+@property(nonatomic, strong) UIImage* image;
+@property(nonatomic, strong) NSDictionary* coinInfo;
+@end
+
 @interface Interpreter : NSObject
 
-- (NSDictionary<NSString*, NSNumber*>*)runOnFrame:(nonnull CVPixelBufferRef)pixelBuffer;
+- (InterpreterResult *)runOnFrame:(CVPixelBufferRef)pixelBuffer;
 
 @end
+
+NS_ASSUME_NONNULL_END

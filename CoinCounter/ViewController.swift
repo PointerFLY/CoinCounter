@@ -21,14 +21,12 @@ class ViewController: UIViewController, AVCaptureVideoDataOutputSampleBufferDele
     
     // MARK: - AVCapture
     
-    private var _session: AVCaptureSession!
-    private var _videoDataOuput: AVCaptureVideoDataOutput!
-    private var _previewLayer: AVCaptureVideoPreviewLayer!
-    private var _videoDataOutputQueue: DispatchQueue!
+    private let _session =  AVCaptureSession()
+    private let _videoDataOuput = AVCaptureVideoDataOutput()
+    private var _videoDataOutputQueue = DispatchQueue(label: "com.pointerfly.CoinCounter.videoDataOutputQueue")
     private let _interpreter = Interpreter()
     
     private func setupAVCapture() {
-        _session = AVCaptureSession()
         if UIDevice.current.userInterfaceIdiom == .phone {
             _session.sessionPreset = .vga640x480
         } else {
@@ -37,14 +35,11 @@ class ViewController: UIViewController, AVCaptureVideoDataOutputSampleBufferDele
         
         let device = AVCaptureDevice.default(for: .video)!
         let deviceInput = try! AVCaptureDeviceInput(device: device)
-        
         if _session.canAddInput(deviceInput) {
             _session.addInput(deviceInput)
         }
     
-        _videoDataOuput = AVCaptureVideoDataOutput()
         _videoDataOuput.videoSettings = [kCVPixelBufferPixelFormatTypeKey as String: kCMPixelFormat_32BGRA]
-        _videoDataOutputQueue = DispatchQueue(label: "com.pointerfly.CoinCounter.videoDataOutputQueue")
         _videoDataOuput.alwaysDiscardsLateVideoFrames = true
         _videoDataOuput.setSampleBufferDelegate(self, queue: _videoDataOutputQueue);
         if _session.canAddOutput(_videoDataOuput) {
@@ -52,14 +47,8 @@ class ViewController: UIViewController, AVCaptureVideoDataOutputSampleBufferDele
         }
         _videoDataOuput.connection(with: .video)?.isEnabled = true
         
-        _previewLayer = AVCaptureVideoPreviewLayer(session: _session);
-        _previewLayer.backgroundColor = UIColor.black.cgColor
-        _previewLayer.videoGravity = .resizeAspect
-        let rootLayer = _previewView.layer
-        rootLayer.masksToBounds = true
-        rootLayer.addSublayer(_previewLayer)
-        
         _session.startRunning()
+    
     }
     
     // MARK: - Events
@@ -95,14 +84,15 @@ class ViewController: UIViewController, AVCaptureVideoDataOutputSampleBufferDele
     
     func captureOutput(_ output: AVCaptureOutput, didOutput sampleBuffer: CMSampleBuffer, from connection: AVCaptureConnection) {
         let buffer = CMSampleBufferGetImageBuffer(sampleBuffer)!
-        let coinInfo =  _interpreter.run(onFrame: buffer) as! [String: Int]
+        let result =  _interpreter.run(onFrame: buffer)
         
         var text = "";
-        for (key, value) in coinInfo {
+        for (key, value) in result.coinInfo {
             text += "[\(value)]\(key)\n"
         }
         DispatchQueue.main.async { [weak self] in
             self?._infoTextView.text = text
+            self?._previewView.image = result.image
         }
     }
     
@@ -110,12 +100,6 @@ class ViewController: UIViewController, AVCaptureVideoDataOutputSampleBufferDele
     
     override var prefersStatusBarHidden: Bool {
         return true
-    }
-    
-    override func viewDidLayoutSubviews() {
-        super.viewDidLayoutSubviews();
-        let rootLayer = _previewView.layer
-        _previewLayer.frame = rootLayer.bounds
     }
     
     private func setupUI() {
@@ -154,10 +138,11 @@ class ViewController: UIViewController, AVCaptureVideoDataOutputSampleBufferDele
         return textView
     }()
     
-    private let _previewView: UIView = {
-        let view = UIView()
-        view.backgroundColor = UIColor.black
-        return view
+    private let _previewView: UIImageView = {
+        let imageView = UIImageView()
+        imageView.backgroundColor = UIColor.black
+        imageView.contentMode = .scaleAspectFit
+        return imageView
     }()
     
     private let _freezeButton: UIButton = {
