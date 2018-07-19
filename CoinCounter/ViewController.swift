@@ -23,32 +23,21 @@ class ViewController: UIViewController, AVCaptureVideoDataOutputSampleBufferDele
     
     private let _session =  AVCaptureSession()
     private let _videoDataOuput = AVCaptureVideoDataOutput()
-    private var _videoDataOutputQueue = DispatchQueue(label: "com.pointerfly.CoinCounter.videoDataOutputQueue")
+    private var _videoDataOutputQueue = DispatchQueue(label: "ViewController._videoDataOutputQueue")
     private let _interpreter = Interpreter()
     
     private func setupAVCapture() {
-        if UIDevice.current.userInterfaceIdiom == .phone {
-            _session.sessionPreset = .vga640x480
-        } else {
-            _session.sessionPreset = .photo
-        }
-        
         let device = AVCaptureDevice.default(for: .video)!
         let deviceInput = try! AVCaptureDeviceInput(device: device)
-        if _session.canAddInput(deviceInput) {
-            _session.addInput(deviceInput)
-        }
+        _session.addInput(deviceInput)
     
         _videoDataOuput.videoSettings = [kCVPixelBufferPixelFormatTypeKey as String: kCMPixelFormat_32BGRA]
         _videoDataOuput.alwaysDiscardsLateVideoFrames = true
         _videoDataOuput.setSampleBufferDelegate(self, queue: _videoDataOutputQueue);
-        if _session.canAddOutput(_videoDataOuput) {
-            _session.addOutput(_videoDataOuput)
-        }
-        _videoDataOuput.connection(with: .video)?.isEnabled = true
+        _session.addOutput(_videoDataOuput)
         
+        _session.sessionPreset = .vga640x480
         _session.startRunning()
-    
     }
     
     // MARK: - Events
@@ -72,9 +61,9 @@ class ViewController: UIViewController, AVCaptureVideoDataOutputSampleBufferDele
             }) { _ in
                 UIView.animate(withDuration: 0.2, animations: {
                     flashView.alpha = 0.0
-                }, completion: { _ in
+                }) { _ in
                     flashView.removeFromSuperview()
-                })
+                }
             }
         } else {
             self._session.startRunning()
@@ -84,15 +73,16 @@ class ViewController: UIViewController, AVCaptureVideoDataOutputSampleBufferDele
     
     func captureOutput(_ output: AVCaptureOutput, didOutput sampleBuffer: CMSampleBuffer, from connection: AVCaptureConnection) {
         let buffer = CMSampleBufferGetImageBuffer(sampleBuffer)!
-        let result =  _interpreter.run(onFrame: buffer)
-        
+        let result = _interpreter.run(onFrame: buffer)
+
         var text = "";
-        for (key, value) in result.coinInfo {
+        result.coinInfo.forEach { key, value in
             text += "[\(value)]\(key)\n"
         }
         DispatchQueue.main.async { [weak self] in
-            self?._infoTextView.text = text
-            self?._previewView.image = result.image
+            guard let `self` = self else { return }
+            self._infoTextView.text = text
+            self._previewView.image = result.image
         }
     }
     

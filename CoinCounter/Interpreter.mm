@@ -64,6 +64,7 @@ using namespace std;
 
 - (NSDictionary*)runTFModel:(Mat)mat {
     // TODO: General image preprocessing, now assume 640 * 480
+    assert(mat.rows == 640 && mat.cols == 480);
     
     int kImageWidth = 224;
     int kChannel = 3;
@@ -82,7 +83,7 @@ using namespace std;
         }
     }
 
-    assert(_interpreter->Invoke() == kTfLiteOk);
+//    assert(_interpreter->Invoke() == kTfLiteOk);
     
     NSMutableDictionary* coinInfo = [[NSMutableDictionary alloc] init];
     float* output = _interpreter->typed_output_tensor<float>(0);
@@ -117,16 +118,14 @@ using namespace std;
 
 - (Mat)readMatFromPixelBuffer:(CVPixelBufferRef)pixelBuffer {
     CVPixelBufferLockBaseAddress(pixelBuffer, 0);
-    
     void* address =  CVPixelBufferGetBaseAddress(pixelBuffer);
+    CVPixelBufferUnlockBaseAddress(pixelBuffer, 0);
+    
     int width = static_cast<int>(CVPixelBufferGetWidth(pixelBuffer));
     int height = static_cast<int>(CVPixelBufferGetHeight(pixelBuffer));
-    
     Mat mRgba = Mat(height, width, CV_8UC4, address, 0);
     rotate(mRgba, mRgba, ROTATE_90_CLOCKWISE);
     cvtColor(mRgba, mRgba, CV_BGRA2RGBA);
-    
-    CVPixelBufferUnlockBaseAddress(pixelBuffer, 0);
     
     return mRgba;
 }
