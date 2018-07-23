@@ -42,56 +42,72 @@ using namespace std;
     Mat mGray;
     cvtColor(mRgba, mGray, CV_RGBA2GRAY);
     
+    Mat cannyOutput;
+    vector<Mat> contours;
+    vector<Vec4i> hierarchy;
+    
     GaussianBlur(mGray, mGray, cv::Size(5, 5), 2, 2);
-    vector<Vec3f> circles;
-    HoughCircles(mGray, circles, CV_HOUGH_GRADIENT, 1, mGray.rows / 20, 100, 60, 20, 100);
+    Canny(mGray, cannyOutput, 100, 255, 3);
+    findContours(cannyOutput, contours, hierarchy, CV_RETR_TREE, CV_CHAIN_APPROX_SIMPLE, cv::Point(0, 0) );
     
-    for( size_t i = 0; i < circles.size(); i++ ) {
-        cv::Point center(cvRound(circles[i][0]), cvRound(circles[i][1]));
-        int radius = cvRound(circles[i][2]);
-        circle(mRgba, center, radius, Scalar(255, 0, 0, 255), 2);
+    vector<Mat> contourPolygons(contours.size());
+    vector<cv::Rect> boundRect(contours.size());
+    vector<Point2f> center(contours.size());
+    vector<float> radius(contours.size());
+    NSDictionary* coinInfo = [[NSMutableDictionary alloc] init];
+    
+    for(int i = 0; i < contours.size(); i++) {
+        approxPolyDP(contours[i], contourPolygons[i], 3, true);
+        boundRect[i] = boundingRect(contourPolygons[i]);
+        minEnclosingCircle(contourPolygons[i], center[i], radius[i]);
+        
+        double ratio = static_cast<double>(boundRect[i].width) / boundRect[i].height;
+        if (ratio > 0.8 && ratio < 1.25 ) {
+            Scalar color = Scalar(255, 0, 0, 255);
+            rectangle(mRgba, boundRect[i].tl(), boundRect[i].br(), color, 2, 8, 0);
+//            circle(mRgba, center[i], static_cast<int>(radius[i]), color, 2, 8, 0);
+            
+            int idx = [self runTFModel:mRgba(boundRect[i])].intValue;
+            NSString* key = [NSString stringWithUTF8String:_labels[idx].c_str()];
+            id value = [NSNumber numberWithInt:((NSNumber*)[coinInfo valueForKey:key]).intValue + 1];
+            [coinInfo setValue:value forKey:key];
+        }
     }
-    
-    NSDictionary* coinInfo = [self runTFModel:mRgba];
-    UIImage* image = MatToUIImage(mRgba);
     
     InterpreterResult* result = [[InterpreterResult alloc] init];
     result.coinInfo = coinInfo;
-    result.image = image;
+    result.image = MatToUIImage(mRgba);
     
     return result;
 }
 
-- (NSDictionary*)runTFModel:(Mat)mat {
-    // TODO: General image preprocessing, now assume 640 * 480
-    assert(mat.rows == 640 && mat.cols == 480);
-    
+- (NSNumber*)runTFModel:(Mat)mat {
     int kImageWidth = 224;
     int kChannel = 3;
     
-    cv::Rect rect = cvRect(16, 96, 448, 448);
-    Mat img = mat(rect);
-    resize(img, img, cv::Size(kImageWidth, kImageWidth));
+    resize(mat, mat, cv::Size(kImageWidth, kImageWidth));
 
     float* input = _interpreter->typed_input_tensor<float>(0);
-    
     for (int i = 0; i < kImageWidth; i++) {
         for (int j = 0; j < kImageWidth; j++) {
             for (int k = 0; k < kChannel; k++) {
-                input[i * kImageWidth * kChannel + j * kChannel + k] = static_cast<float>(img.at<Vec4b>(i, j)[k]);
+                input[i * kImageWidth * kChannel + j * kChannel + k] = static_cast<float>(mat.at<Vec4b>(i, j)[k]);
             }
         }
     }
 
-//    assert(_interpreter->Invoke() == kTfLiteOk);
+    assert(_interpreter->Invoke() == kTfLiteOk);
     
-    NSMutableDictionary* coinInfo = [[NSMutableDictionary alloc] init];
     float* output = _interpreter->typed_output_tensor<float>(0);
-    for (int i = 0; i < 5; i++) {
-        [coinInfo setObject:[NSString stringWithFormat:@"%.2f", output[i]] forKey:[NSString stringWithUTF8String:_labels[i].c_str()]];
+    
+    int maxIdx = 0;
+    for (int i = 1; i < 5; i++) {
+        if (output[i] > output[maxIdx]) {
+            maxIdx = i;
+        }
     }
-
-    return coinInfo;
+    
+    return [NSNumber numberWithInt:maxIdx];
 }
 
 - (void)setupTFModel {
